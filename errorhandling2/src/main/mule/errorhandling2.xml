@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f8218e15-fed7-4024-9396-73dffb30321d" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="9ecbed26-ea06-4d1d-b862-0957d8fcf054" >
+		<http:request-connection host="hfeeyd" />
+	</http:request-config>
+	<flow name="errorhandling2Flow" doc:id="fa167f77-ed86-4e9c-9583-6770bdd301ff" >
+		<http:listener doc:name="Listener" doc:id="b4651f5e-0cc5-4c40-8c93-3cebce40a1d1" config-ref="HTTP_Listener_config" path="/errorhandling1">
+			<http:error-response >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<flow-ref doc:name="Flow Reference" doc:id="0056996e-f1ab-4528-981b-0ce911412921" name="errorhandling2Flow1"/>
+		<set-payload value='#["main flow"]' doc:name="Set Payload" doc:id="fca6ab23-5561-4543-8673-a9abb035a96c" />
+	</flow>
+	<flow name="errorhandling2Flow1" doc:id="51ec5f62-6897-4771-94fa-094b03444a30" >
+		<set-payload value='#["jjjj"]' doc:name="Set Payload" doc:id="a8efc035-5e0e-4a5e-b107-99d827d29a64" />
+		<http:request method="GET" doc:name="Request" doc:id="3db13bb0-5d71-426b-9653-a6a604bc6d92" config-ref="HTTP_Request_configuration" path="/request"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="84dc17f5-1cd7-488f-9906-5a864d9749b8" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="1f93f013-8f60-47e2-9648-0705e1bc2826" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e037a4a6-e1dc-4acf-b2dd-395bd8a82dc6" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="a436a97b-643c-4cb1-be1b-82dd433b4f48">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
