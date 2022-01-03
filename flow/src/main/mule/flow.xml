@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="93f793c6-2d06-451a-a2ce-af855668111e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="flowFlow" doc:id="1bb29027-eaa7-4d93-ac59-d447b8e5f0a2" >
+		<http:listener doc:name="Listener" doc:id="b1ade131-b97d-4950-ab58-d7e74020d9b7" config-ref="HTTP_Listener_config" path="/flow"/>
+		<set-payload value='#["i am in main flow"]' doc:name="Set Payload" doc:id="b7d63b99-b70c-4b3b-8095-38dc31e2d535" />
+		<flow-ref doc:name="Flow Reference" doc:id="7a72d1f3-27bb-4407-987d-bae3fada7213" name="flowSub_Flow"/>
+		<set-payload value='#["after flow ref"]' doc:name="Set Payload" doc:id="f9ef5962-2680-4658-ae91-15972877bb7b" />
+	</flow>
+	<sub-flow name="flowSub_Flow" doc:id="2816376d-beea-4c25-88d3-dee8c7e31c47" >
+		<set-payload value='#["i am in sub flow"]' doc:name="Set Payload" doc:id="87a867bd-8967-4cd2-84d5-11bfc04f51dc" />
+	</sub-flow>
+</mule>

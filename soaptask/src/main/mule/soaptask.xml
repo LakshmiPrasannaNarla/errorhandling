@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1eaad798-f4fa-415e-9244-c4cbc757187c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="acbf552f-c4fc-4f0d-8dbb-daec41d1b987" >
+		<wsc:connection wsdlLocation="http://calculator-webservice.mybluemix.net/calculator?wsdl" service="CalculatorService" port="CalculatorPort" address="http://calculator-webservice.mybluemix.net/calculator" />
+	</wsc:config>
+	<flow name="soaptaskFlow" doc:id="abdb3d69-8cb0-48c8-bebe-fd78313846f1" >
+		<http:listener doc:name="Listener" doc:id="545a2a26-9ea3-4bb4-b247-16e46964bfa1" config-ref="HTTP_Listener_config" path="/lisner"/>
+		<ee:transform doc:name="Transform Message" doc:id="94fe2939-f0f6-4f34-a938-177344fd735b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://example.com/
+---
+{
+	ns0#add: {
+		intA: payload.num1,
+		intB: payload.num2
+	}
+}
+
+	
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="85db7c85-920a-431c-a0b8-9b7dca53eb7c" config-ref="Web_Service_Consumer_Config" operation="add"/>
+		<ee:transform doc:name="Transform Message" doc:id="58a3c5bf-3110-4f60-a323-6597b1e2ebf5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0ns ns0 http://example.com/
+
+output application/json
+---
+{
+	"message":payload.body.ns0#addResponse.value
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

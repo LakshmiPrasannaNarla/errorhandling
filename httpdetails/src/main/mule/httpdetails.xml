@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c3d6b1f2-ae02-43bc-aa97-8dc662174ff1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="149d539d-a508-4ee4-a7cb-0a8e8e497202" >
+		<http:request-connection host="choiceconsume-lakshmi.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="httpdetailsFlow" doc:id="0b9e2d88-daf5-468e-9ae6-474fca2ba94a" >
+		<http:listener doc:name="Listener" doc:id="3e7bdb38-682c-4e0e-9271-85933b03ed59" config-ref="HTTP_Listener_config" path="/hello"/>
+		<set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="f21679bf-d1fb-4b3f-808b-3d099b902443" variableName="Correlationid"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f04f2f04-6404-4551-8da3-fc7d6cce0ed9" message="Correlationid-#[vars.Correlationid]"/>
+		<ee:transform doc:name="Transform Message" doc:id="6366ce8e-8e8e-4aa7-a2e5-fe05e1db5ec2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"operation" : "add",
+	"value1"    : 10,
+	"value2"     : 20
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger " doc:id="3db0e515-77e8-4461-9eb7-cfaafa1e71d2" message="#[payload]"/>
+		<http:request method="GET" doc:name="Request" doc:id="80c4f949-c9c2-422c-aee3-e1640e46c640" config-ref="HTTP_Request_configuration" path="/add" target="response">
+			<ee:repeatable-file-store-stream bufferUnit="MB" />
+			<http:body ><![CDATA[#[{
+	
+	"operation" : "add",
+	"value1"    : 10,
+	"value2"     : 20
+
+}]]]></http:body>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="df4a3104-30f7-4c38-838b-a282de2c7a01" message="Correlationid-#[vars.Correlationid]-response -#[vars.response]-#[payload]" />
+	</flow>
+</mule>

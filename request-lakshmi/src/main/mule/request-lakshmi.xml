@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="90d00cb1-5f5a-48c8-846d-2cd3b41ede41" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="ffcec0f7-c3f6-49d1-92ad-01d1daf32f26" >
+		<http:request-connection host="choiceconsume-lakshmi.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="request-lakshmiFlow" doc:id="4f867831-5921-4512-a610-787942469ec9" >
+		<http:listener doc:name="Listener" doc:id="fe21bf57-ed58-4b82-baff-aa5a227872f7" config-ref="HTTP_Listener_config" path="/request"/>
+		<http:request method="POST" doc:name="Request" doc:id="8b788c1f-e3d5-4bf0-b3d0-78622802b8c3" config-ref="HTTP_Request_configuration" path="/log">
+			<http:body ><![CDATA[#[{
+    "operation" : "add",
+    "value1" : 10,
+    "value2" : 10
+
+}]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	correlationid : vars.correlationid
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="ae1c7e03-286e-41b5-8369-982b0d5c7325" message="#[payload]"/>
+	</flow>
+</mule>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d31c9c6a-868a-4d16-be7d-bf065bde4bc5" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="7aefacb4-d9bf-4119-a1ab-69b0885eefe9" >
+		<file:connection workingDir="C:\Users\HP\Documents\PRASU" />
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="8e6a2aa5-eb28-4d99-a5d3-3c9cc30e51ac" >
+		<file:connection workingDir="C:\Users\HP\Documents\PRASU" />
+	</file:config>
+	<flow name="file-prasannaFlow" doc:id="b5087df6-9fea-47be-9460-fee1430477f9" >
+		<http:listener doc:name="Listener" doc:id="6092415b-71ce-49fa-b8d9-bbebe3bbbf80" config-ref="HTTP_Listener_config" path="/file"/>
+		<set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="a37d9a80-c517-4118-9483-99d18247ccf9" variableName="Correlationid"/>
+		<file:read doc:name="Read" doc:id="347619d7-fded-4bfe-abbd-25d5c6db1922" config-ref="File_Config" path="read.txt" target="readvar"/>
+		<choice doc:name="Choice" doc:id="5fa1317b-49a4-4258-894b-6377a8758bc7" >
+			<when expression="#[isEmpty(payload)]">
+				<file:write doc:name="Write" doc:id="6973fe7a-7cc5-434f-8695-4a43e7121890" config-ref="File_Config1" path="write2.txt" mode="APPEND">
+					<file:content ><![CDATA[#[" /nwelcome lakshmi"]]]></file:content>
+				</file:write>
+				<logger level="INFO" doc:name="Logger" doc:id="6001b1c4-2b8b-4339-9167-2a5ab044a1ad" message="Correlationid-#[vars.Correlationid]-write logger component" />
+				<set-payload value="file has been successful" doc:name="Set Payload" doc:id="92c1dbec-f1b7-4bb3-b6b6-39336f6ff822" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="b1dd5697-35d7-4035-971f-407667caa47c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Name: "lakshmi",
+	Fileoutput: vars.readvar
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<file:write doc:name="Write" doc:id="6384260a-d37d-48a7-8a7e-9ede2f1fc4d4" config-ref="File_Config1" path="write.txt" />
+				<set-payload value="file has been written successfully" doc:name="write Payload" doc:id="18c148f3-29f0-4c9e-aecd-4da78286d5b9" />
+				<logger level="INFO" doc:name="write Logger" doc:id="d04c2392-99f6-4edf-af6b-871c4f9430f9" message="file has been written" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="read Logger" doc:id="e27fc797-1f05-462f-9a30-3b22566e4756" message="#[payload]" />
+	</flow>
+</mule>

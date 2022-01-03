@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8578cdac-b294-4a94-818d-91da4e034f0f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="ba92e582-d4ba-4512-a0c1-70a95a251d64" />
+	<validation:config name="Validation_Config1" doc:name="Validation Config" doc:id="e3c13822-39dd-4278-8864-96afa6a23f68" />
+	<configuration doc:name="Configuration" doc:id="d8fbabcb-a976-42e6-8e67-9a7489194256" defaultErrorHandler-ref="globalError_Handler" />
+	<validation:config name="Validation_Config2" doc:name="Validation Config" doc:id="4c41cc3b-cfaa-42dd-b8a2-f3b25912a50a" />
+	<flow name="error3Flow" doc:id="3f18f588-3b5a-4e29-9fc6-1ba8d55d133d" >
+		<http:listener doc:name="Listener" doc:id="fe6d89df-c4af-4c6c-b7dd-7bb9612e6f22" config-ref="HTTP_Listener_config" path="/error"/>
+		<choice doc:name="Choice" doc:id="bee915db-421e-4de2-ba94-0d875d258140" >
+			<when expression="#[isEmpty(payload)]">
+				<raise-error doc:name="Raise error" doc:id="e49a6607-fde5-4b1c-b149-90f100a300d7" type="NO:PAYLOAD" description="NO PAYLOAD IS EXECUTED"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="ef62534a-c352-4dbe-ac2d-3a4f100a4304" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/Json
+---
+payload
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="error3Flow1" doc:id="e3e0060f-6027-4fdb-9b9a-67d85e1fc4df" >
+		<http:listener doc:name="Listener" doc:id="93e121d0-5a0e-4fec-bf3b-c45883d266e0" config-ref="HTTP_Listener_config" path="/error1"/>
+		<set-payload value="#[123]" doc:name="Set Payload" doc:id="30447b9a-6dd6-48e6-8f1a-18dca8238c24" />
+		<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="2093b5c3-36cc-4f0e-a0a7-89deee6124e6" config-ref="Validation_Config2" value="#[payload]" minValue="1000" maxValue="5000"/>
+		<ee:transform doc:name="Transform Message" doc:id="f3b5531c-08c1-46cf-a99c-9d82a6993550" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="error3Flow2" doc:id="29fcd07d-d69c-4914-b316-0716244dadd7" >
+		<http:listener doc:name="Listener" doc:id="7e26a4af-3652-49f1-9ec5-c34444f72648" config-ref="HTTP_Listener_config" path="/path"/>
+		<set-payload value='#["string"]' doc:name="Set Payload" doc:id="d1579cf6-6b6f-4ca9-983d-957e031fc59b" />
+		<choice doc:name="Choice" doc:id="a8e0e3af-bd88-4efc-88df-0948ac5e1362" >
+			<when expression="#[isEmpty(payload)]">
+				<raise-error doc:name="Raise error" doc:id="0bbdd8c6-c230-4b99-9dcf-fd7742795bbc" type="NO:RESPONSE" description="NO RESPONSE"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="7e8de52f-7810-4ab6-bbdb-20caf1211fb1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"error"
+}
+	
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a753ddf8-1a7c-4c78-8149-46042d743395" type="NO:PAYLOAD">
+				<ee:transform doc:name="Transform Message" doc:id="62da0e0c-90fb-40ec-af77-25600589c930" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="error3Flow3" doc:id="06a3a579-cb25-4bb3-baa5-f0cc1d52f7e0" >
+		<http:listener doc:name="Listener" doc:id="f107df67-bb19-4845-bf3e-9de8408d0d50" config-ref="HTTP_Listener_config" path="/path1"/>
+		<set-payload doc:name="Set Payload" doc:id="219981ca-69bb-4e21-91df-a669989e55cd" value="#[5001]"/>
+		<try doc:name="Try" doc:id="4c450838-6cac-48a5-8faf-c6445d72c325" >
+			<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="3e38ebed-53ad-466a-980d-cc207492ecbe" config-ref="Validation_Config1" value="#[payload]" minValue="1000" maxValue="5000" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7c868e70-9873-47de-97d0-1e20a337f78a" type="ANY">
+					<set-payload value='#["error occured"]' doc:name="Set Payload" doc:id="5023db29-f443-490e-815e-dc5577964b26" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="14e62242-a4bc-4fab-9b7e-aff648195f93" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

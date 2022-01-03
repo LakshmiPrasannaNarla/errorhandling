@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="de79e0fc-c90a-48f5-9920-b0d73b50d82a" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	
+	<flow name="conversion-prasannaFlow" doc:id="ce5b7641-342b-422f-acdc-30175b931510" >
+		<http:listener doc:name="Listener" doc:id="850917c8-1d46-4678-9870-8287a4c96402" config-ref="HTTP_Listener_config" path="/numberconversion"/>
+		<ee:transform doc:name="Transform Message" doc:id="48b24126-2b4d-4eac-8f42-a8ebb8b50267" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.dataaccess.com/webservicesserver/
+---
+{
+	ns0#NumberToWords: {
+		ns0#ubiNum: payload.value
+	}
+	
+	}
+	]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="NumberToWords" doc:name="Consume" doc:id="307e4ae8-c912-49e6-8fc0-e13f7c735cfd" config-ref="Web_Service_Consumer_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="36732343-4128-4387-aa14-b15848dd3fc4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0ns ns0 http://www.dataaccess.com/webservicesserver/
+
+output application/json
+---
+{
+ "result" : payload.body.ns0#NumberToWordsResponse.ns0#NumberToWordsResult }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

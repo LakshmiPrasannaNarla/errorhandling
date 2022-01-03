@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="794bd0ec-0c8e-4d5b-9dd2-14af05f0ecdb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="f4cf3d20-0433-44ec-a65d-79050e9c85c5" >
+		<db:mssql-connection host="muletraining.database.windows.net" port="1433" user="user" password="muletraining@123" databaseName="MuleDB" />
+	</db:config>
+	<flow name="database-prasannaFlow" doc:id="165a5c14-8206-4a45-8b71-90e9a96b32e0" >
+		<http:listener doc:name="Listener" doc:id="4108aca7-81f9-4007-aa6c-c9d3cbb00201" config-ref="HTTP_Listener_config" path="/lisner"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7d83bfd2-519e-4341-a960-7fd0a97bf5ed" message="standard flow-select operation"/>
+		<db:select doc:name="Select" doc:id="0a7a122b-ff82-49fd-84a7-c6bb80083b9f" config-ref="Database_Config">
+			<db:sql ><![CDATA[Select * from SalesLT.Customer where firstname = :abc]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="d4d81592-d1c7-472c-8f6d-190e0a85a580" message="#[payload]"/>
+	</flow>
+</mule>

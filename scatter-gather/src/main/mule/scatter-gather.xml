@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="94a59594-bc5e-481f-97d7-6a170bbad3f7" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="scatter-gatherFlow1" doc:id="7c874301-7b5b-4970-a836-5913e49f9a41" >
+		<http:listener doc:name="Listener" doc:id="0ace02cb-2b1e-4cce-a5c7-a0f07f94f720" config-ref="HTTP_Listener_config" path="/scatter"/>
+		<set-payload value="#['prasanna']" doc:name="Set Payload" doc:id="5b98dfa8-60e3-40c4-8d83-5384ed55731b" />
+		<scatter-gather doc:name="Scatter-Gather" doc:id="1fa69f93-5899-451c-ad52-a00406652422" >
+			<route >
+				<set-variable value="#[payload ++ &quot; &quot;++ 'route1']" doc:name="route1" doc:id="2f11f74d-c814-4298-96c6-b305024ded83" variableName="route1"/>
+				<set-payload value="#[payload ++ &quot; &quot;++ 'route1']" doc:name="Set Payload r1" doc:id="28dba90d-e1f3-4a26-ab60-796c26bd04fb" />
+			</route>
+			<route >
+				<set-variable value="#[payload ++ &quot; &quot;++ 'route2']" doc:name="route2" doc:id="1e896a63-4594-4358-8283-00b04e53e104" variableName="route2"/>
+				<set-payload value="#[payload ++ &quot; &quot;++ 'route2']" doc:name="Set Payload r2" doc:id="f75ada23-f7f3-4ff6-928c-e16d03e135d6" />
+			</route>
+			<route >
+				<set-variable value="#[payload ++ &quot; &quot;++ 'route3']" doc:name="route3" doc:id="cbab5bec-2261-4cb2-8a6f-8e79b37b0e8f" variableName="route3"/>
+				<set-payload value="#[payload ++ &quot; &quot;++ 'route3']" doc:name="Set Payload r3" doc:id="96005fc0-7e09-48f4-9e94-78859495ace9" />
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="ba0189e2-dd23-46ed-9aa3-36a69474bdee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="aggregator" doc:id="958d45b3-1930-4dc4-8538-2d8ad150cd3b" />
+	</flow>
+</mule>

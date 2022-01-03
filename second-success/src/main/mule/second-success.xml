@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="fcd77e52-be47-4e20-b13f-fa73492503b1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="e749adca-2bc4-4c8b-9323-3c653f56055c" >
+		<http:request-connection host="productid-lakshmi.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="second-successFlow" doc:id="a7e665da-6184-42e5-9bed-ee58b354cf39" >
+		<http:listener doc:name="Listener" doc:id="13ae99d1-2924-4c6f-859f-ded62387bbd3" config-ref="HTTP_Listener_config" path="/secondsuccess"/>
+		<ee:transform doc:name="Transform Message" doc:id="6acc5964-d5d9-4d76-adb6-2dae9e3f7144" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"name" : "prasanna",
+	"size" : "S"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="eeebf11a-0862-4dc7-b59e-1673e9e5bdb6" millisBetweenRetries="10000">
+			<http:request method="POST" doc:name="Request" doc:id="ceee1233-b570-4711-b9a5-6e642c8cf022" config-ref="HTTP_Request_configuration" path="/lisner"/>
+		</until-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="295bac36-aa21-4abe-aba0-7ee0027b9a5d" message="end logger"/>
+	</flow>
+</mule>

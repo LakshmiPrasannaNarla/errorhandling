@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="47e5f1d2-2599-4771-9996-280f9aae19e7" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="javacall-prasannaFlow" doc:id="598f952e-b8ff-4cb7-ba9e-093530878f82" >
+		<http:listener doc:name="Listener" doc:id="7691c97b-7a06-45f3-9851-1e0cf8da9e73" config-ref="HTTP_Listener_config" path="/javacall"/>
+		<ee:transform doc:name="Transform Message" doc:id="8812c020-33a1-4a26-b20e-073d931f3f70" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+import java!javacall::javademo
+---
+{
+	Note: javademo::getwelcomemessage(),
+	"name" : "prasu",
+	"age"  : "21"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="04b9e9af-9890-4718-8101-4c091f9336dc" message="#[payload]"/>
+	</flow>
+</mule>

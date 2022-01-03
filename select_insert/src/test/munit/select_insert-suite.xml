@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="select_insert-suite.xml" />
+	<munit:test name="select_insertFlow-select" doc:id="5845bbab-d0f5-4133-a262-984da5bf448a" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Select" doc:id="aac551be-5b41-436d-be22-8aff46e47479" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="01dd34e6-648a-43cb-881f-71952d816c8c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://selectinsertFlowselect\mock_payload.dwl')]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="15e74300-3083-4327-99ca-67db0dae72a0" >
+				<munit:payload value="#[readUrl('classpath://selectinsertFlowselect\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://selectinsertFlowselect\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to select_insertFlow" doc:id="c6ebad5d-b2b2-461e-8bd8-d533cc76b61b" name="select_insertFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="7c2ad24c-ca7e-4f81-945f-078c4bbab3ec" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import selectinsertFlowselect::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="select_insertFlow1-insert" doc:id="ce0c0c34-3db7-4e78-a772-25b373d34cdf" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Insert" doc:id="630f28b9-77a6-489d-a227-02e9a6bfe0d2" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4d812e5f-9a98-4f35-a5b5-98f1cc7782a1" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://selectinsertFlow1insert\mock_payload.dwl')]" mediaType="application/java" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="5c099fb0-2019-4c6a-b9db-6186ed704965" >
+				<munit:payload value="#[readUrl('classpath://selectinsertFlow1insert\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://selectinsertFlow1insert\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to select_insertFlow1" doc:id="bac2796e-da87-481a-9d8a-500087ba126e" name="select_insertFlow1"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="edc6eb7b-0550-4503-ab20-51893c221e2c" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import selectinsertFlow1insert::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

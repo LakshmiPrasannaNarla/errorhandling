@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="5b095f72-9082-411c-b9d9-20320db58a33" >
+		<jms:active-mq-connection username="admin" password="admin" specification="JMS_2_0">
+			<jms:caching-strategy >
+				<jms:no-caching />
+			</jms:caching-strategy>
+			<jms:factory-configuration />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="jmsprojectFlow" doc:id="ae693890-e6a4-4153-960b-7f75841f27d5" >
+		<jms:listener doc:name="On New Message" doc:id="1a2874cd-5a15-4792-b480-4ad8efda501b" config-ref="JMS_Config" destination="Queue.user.consume" ackMode="IMMEDIATE"/>
+		<logger level="INFO" doc:name="Logger" doc:id="12dcc0cc-c6d6-4314-8ed7-e598e1849848" message="#[payload]"/>
+	</flow>
+</mule>
