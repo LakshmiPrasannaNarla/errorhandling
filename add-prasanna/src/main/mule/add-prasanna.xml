@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b256f87c-ad91-4c53-a1df-77871ba845e6" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="afe0d03c-aec8-42b1-b7d0-08f34db0f95b" >
+		<wsc:connection wsdlLocation="http://www.dneonline.com/calculator.asmx?wsdl" service="Calculator" port="CalculatorSoap12" address="http://www.dneonline.com/calculator.asmx" />
+	</wsc:config>
+	<flow name="add-prasannaFlow" doc:id="f3d38147-aa20-427e-bab2-b8977d76add6" >
+		<http:listener doc:name="Listener" doc:id="2be3d2d7-8996-4bdd-b769-49a647154a3d" config-ref="HTTP_Listener_config" path="/soapsub"/>
+		<ee:transform doc:name="Transform Message" doc:id="e5e52333-c3f3-433a-8a2c-c32bb395f11a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://tempuri.org/
+---
+{
+	ns0#Divide: {
+		ns0#intA: payload.value1,
+		ns0#intB: payload.value2
+	}
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="Divide" doc:name="Consume" doc:id="cd236874-dfb9-4437-9717-dd24b55ca3a4" config-ref="Web_Service_Consumer_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="7798e537-ff56-4671-89f2-0a17fb8a92fd">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0ns ns0 http://tempuri.org/
+
+output application/json
+---
+{
+	"addresult" : payload.body.ns0#DivideResponse.ns0#DivideResult
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

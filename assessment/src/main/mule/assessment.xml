@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6a009ed5-4815-4cd7-bbb3-f3e7dc6cc961" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="assessmentFlow" doc:id="0a3a531d-3db1-4d07-80a9-5b596443734a" >
+		<http:listener doc:name="Listener" doc:id="6acad52e-1654-4d8a-8a1b-140444c5f56f" config-ref="HTTP_Listener_config" path="/path"/>
+		<set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="cc367d29-f27b-4649-beb9-ba7d34a677d5" variableName="Correlationid"/>
+		<choice doc:name="Choice" doc:id="a30d979c-db47-4855-b117-f590b5ab4d18" >
+			<when expression="#[((attributes.queryParams.productid&gt;= 10001 as Number) and (attributes.queryParams.productid&lt;99999 as Number))]">
+				<java:new doc:name="New" doc:id="e2206f9b-c5bb-4c66-9035-464934a8152d" class="prasanna.sales" constructor="sales()" target="test"/>
+				<java:invoke doc:name="Invoke" doc:id="508e5625-f0d8-48c6-95f8-26b075df28fc" class="prasanna.sales" method="getproductid(int)" instance="#[vars.test]">
+					<java:args ><![CDATA[#[{
+arg0 : attributes.queryParams.productid
+
+}]]]></java:args>
+				</java:invoke>
+				<set-payload value="valid input id" doc:name="Set Payload" doc:id="8f5e60d7-5e3c-4d5f-9ed0-5dfad04c54c2" />
+			</when>
+			<otherwise >
+				<set-payload value="invalid input id" doc:name="Set Payload" doc:id="2010c688-3792-4b8e-8e3e-007937404385" />
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="assessmentFlow1" doc:id="9b20abb9-1c5c-45f6-bc1d-70a073dffd6a" >
+		<http:listener doc:name="Listener" doc:id="d96c43f5-6553-40e1-bde1-ea75048a2a30" config-ref="HTTP_Listener_config" path="/lisner"/>
+		<java:new doc:name="New" doc:id="40fc0363-355b-4d66-8412-4fb9d8c5a0ab" class="prasanna.sales" constructor="sales()" target="objecttest"/>
+		<java:invoke doc:name="Invoke" doc:id="d0ed8625-88d4-4219-ae11-51414e33d810" instance="#[vars.objecttest]" class="prasanna.sales" method="getamount(java.lang.String)">
+			<java:args ><![CDATA[#[{
+	arg0 : payload.size as String
+}]]]></java:args>
+		</java:invoke>
+		<ee:transform doc:name="Transform Message" doc:id="7638a054-d0a3-4f9c-9dfe-1324e4744636" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"total amount" :payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

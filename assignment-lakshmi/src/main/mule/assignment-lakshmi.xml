@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="cfd8ab63-6b92-4082-9f24-f2240d8d0a90" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d39afb6e-da64-4b18-a1cd-59e276c3c072" >
+		<http:request-connection host="addition-papi.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="assignment-lakshmiFlow" doc:id="9cd26f55-979f-4ef6-b887-93e11290ab58" >
+		<http:listener doc:name="Listener" doc:id="61a0d9a3-5e1e-4b93-9e06-7a81001745d7" config-ref="HTTP_Listener_config" path="/assignment"/>
+		<set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="f0a3bc95-aca2-49dc-9007-fec0ca13d951" variableName="Correlationid"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f1401648-7351-46f8-8ff0-c57f75252e16" message="Correlationid-#[vars.Correlationid]"/>
+		<http:request method="POST" doc:name="Request" doc:id="d825df69-10c1-4674-a1a3-47bb41e1c155" config-ref="HTTP_Request_configuration" path="/add">
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="66a41028-f5fb-4b41-bfca-c5f4c6f827df" message="Correlationid-#[vars.Correlationid]-receivedresponse- #[payload]"/>
+	</flow>
+</mule>

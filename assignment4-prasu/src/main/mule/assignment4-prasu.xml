@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="099f8da1-47f1-4b09-adf2-179962028996" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="33b878ea-ac01-4720-9da3-e8ee43934b59" >
+		<http:request-connection host="hfdyrbardh" />
+	</http:request-config>
+	<flow name="assignment4-prasuFlow" doc:id="7b380ba5-cad3-4c5d-9243-a2b288a161ab" >
+		<http:listener doc:name="Listener" doc:id="912d07a8-84d1-4921-8d3d-558847ca3ff1" config-ref="HTTP_Listener_config" path="/assignment2"/>
+		<set-payload value='#["main flow"]' doc:name="Set Payload" doc:id="6808ad63-1baf-41f5-969a-0477fe90632a" />
+		<flow-ref doc:name="Flow Reference" doc:id="aa1fb817-8eaa-409f-ac0f-0785c5b22cbd" name="assignment4-prasuSub_Flow"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bcadea76-502d-4f0f-a919-b42c95cfd3b0" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="397f02b7-41f2-4728-b609-d8d411503d47" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : "connectivity error"
+}
+	
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<sub-flow name="assignment4-prasuSub_Flow" doc:id="ff50b927-97ce-4d72-963b-589d4b0350d0" >
+		<http:request method="GET" doc:name="Request" doc:id="8ac85a72-2794-4d90-a99e-eb8a8e428111" config-ref="HTTP_Request_configuration" path="/user"/>
+	</sub-flow>
+</mule>

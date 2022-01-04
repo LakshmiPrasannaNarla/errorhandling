@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="9069cc8d-2ae9-40a1-8971-6a5e5c74fb7e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="assignment2-prasannaFlow" doc:id="1a515058-19ea-4cd7-8864-69c368300e53" >
+		<http:listener doc:name="Listener" doc:id="9324e2b0-4014-4a33-8f78-98544485b2c2" config-ref="HTTP_Listener_config" path="/assesment2"/>
+		<java:new doc:name="New" doc:id="4d00aa89-374f-4a15-bb2f-67d924a9d7cb" class="project.sales" constructor="sales()" target="objofsamplesales"/>
+		<java:invoke doc:name="Invoke" doc:id="36abd240-d27b-491f-9ce2-08c20e63ce08" class="project.sales" instance="objofsamplesales" method="equals(java.lang.Object)">
+			<java:args ><![CDATA[#[{
+arg0 : attributes.queryParams.getAmount
+
+}]]]></java:args>
+		</java:invoke>
+	</flow>
+	<flow name="assignment2-prasannaFlow1" doc:id="10db39fb-7fa4-4006-8733-da0e88d61fc2" >
+		<http:listener doc:name="Listener" doc:id="f462deab-1362-43db-b181-7fef4d1353ae" config-ref="HTTP_Listener_config" path="/check"/>
+		<java:new constructor="sales()" doc:name="New" doc:id="b985423f-9a5e-4dd4-bb64-c202a7d35365" class="project.sales" target="objofsamplesales"/>
+		<java:invoke doc:name="Invoke" doc:id="5e7fff11-7baa-4475-9be0-7e37f0194d89" instance="#[vars.objofsampleclass]" class="project.sales" method="checkProductid(String  productid) (checkProduct(java.lang.String))">
+			<java:args><![CDATA[{
+arg2 : attributes.queryParams.productid
+
+}]]></java:args>
+		</java:invoke>
+	</flow>
+</mule>
