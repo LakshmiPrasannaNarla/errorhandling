@@ -16,6 +16,9 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<db:config name="Database_Config1" doc:name="Database Config" doc:id="904aaad1-3a05-48fe-a1ec-cccfb627763f" >
 		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="learndb" />
 	</db:config>
+	<db:config name="Database_Config2" doc:name="Database Config" doc:id="89a56986-6b9e-4329-ae97-98739f1e3e60" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="learndb" />
+	</db:config>
 	<flow name="foreachdbFlow" doc:id="61e28068-43ea-4329-be8c-3e644ee06ef4" >
 		<http:listener doc:name="Listener" doc:id="8e6bc0e7-156d-49bb-a4eb-bd83f7db9a5d" config-ref="HTTP_Listener_config" path="/loop"/>
 		<batch:job jobName="foreachdbBatch_Job" doc:id="c820b9aa-c89c-47d6-8dd4-b45b5fa7bb44">
@@ -49,5 +52,56 @@ payload
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+	</flow>
+	<flow name="foreachdbFlow1" doc:id="0cd4a322-b836-4387-97c9-9ec8ee232d10" >
+		<http:listener doc:name="Listener" doc:id="5ee9d889-4830-4ee1-9fd1-e4266396b4d0" config-ref="HTTP_Listener_config" path="/update"/>
+		<logger level="INFO" doc:name="Logger" doc:id="06d4baa1-61cf-4f17-aa70-026cd5f2ffaa" message="#[payload]"/>
+		<batch:job jobName="foreachdbBatch_Job1" doc:id="a719577e-2534-461a-b991-cf5dfbebacfc" >
+			<batch:process-records >
+				<batch:step name="Batch_Step1" doc:id="590b9c0b-7eb2-4e6a-b077-00b4ba8238f4" >
+					<db:update doc:name="Update" doc:id="afab828e-2e39-4712-a64f-98d033f7ac33" config-ref="Database_Config1">
+						<db:sql ><![CDATA[update customer_details set name = :name where id = 11]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{
+	"name" : payload.name
+}]]]></db:input-parameters>
+					</db:update>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="f3dce53f-a207-42c7-bfee-86e9a0f07ff0" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="e90de293-817a-40fb-9b9e-a6e2ffb418b2" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="2c2bde55-53ea-434a-a2d4-bf2350e0e9ed" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="1966eba0-02cc-4d85-ac78-fdf8ad8a69e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="foreachdbFlow2" doc:id="2ea7b3b9-febb-468f-84cd-331bf6e00670" >
+		<http:listener doc:name="Listener" doc:id="97435c61-c13b-4714-a803-8ef58a92fd39" config-ref="HTTP_Listener_config" path="/delete"/>
+		<batch:job jobName="foreachdbBatch_Job2" doc:id="4c9af8e7-ae2b-44b9-b1b1-80d89fe07165" >
+			<batch:process-records >
+				<batch:step name="Batch_Step2" doc:id="560ef75d-8884-4160-a00c-96d6ac4963d2" >
+					<db:delete doc:name="Delete" doc:id="507f534a-dd19-47b9-a019-46f4597c4aba" config-ref="Database_Config2">
+						<db:sql ><![CDATA[delete from customer_details where id = 11]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{
+	"name" : payload.name
+}]]]></db:input-parameters>
+					</db:delete>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="67fea90f-415e-4221-9af6-d297adca2973" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="3dc8b1ed-8e34-4f80-9403-2796821316df" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="70dbcd29-11c8-4d31-896c-2e5708ef3761" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
 	</flow>
 </mule>
