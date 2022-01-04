@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2caf7844-9b4a-4a77-a4e7-15b70c12768a" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="01e9e497-6992-49a5-9fad-1a4e94e5eb0c" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="learndb" />
+	</db:config>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="904aaad1-3a05-48fe-a1ec-cccfb627763f" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="learndb" />
+	</db:config>
+	<flow name="foreachdbFlow" doc:id="61e28068-43ea-4329-be8c-3e644ee06ef4" >
+		<http:listener doc:name="Listener" doc:id="8e6bc0e7-156d-49bb-a4eb-bd83f7db9a5d" config-ref="HTTP_Listener_config" path="/loop"/>
+		<batch:job jobName="foreachdbBatch_Job" doc:id="c820b9aa-c89c-47d6-8dd4-b45b5fa7bb44">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="25f4809c-65d9-46ee-97b7-f5de8710292f">
+					<db:insert doc:name="Insert" doc:id="78b4bf3f-b159-4295-8b76-fcc471f80fd1" config-ref="Database_Config1">
+			<db:sql><![CDATA[INSERT INTO learndb.account_details (account_id,name,branch,contactno,city) VALUES (:account_id,:name,:branch,:contactno,:city)]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{
+	account_id : payload.account_id,
+	name   :  payload.name,
+	branch : payload.branch,
+	contactno : payload.contactno,
+	city   :    payload.city
+	}]]]></db:input-parameters>
+		</db:insert>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="8c8b762c-27df-4f78-a038-a7f07bb95b92" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="8733c129-81f4-4490-9dd1-5dfb57eb57e2" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="bfaa5d3b-a34e-40e3-8fe4-bd31efea3c16" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="c626b9a8-8b93-4a5c-9eb4-a7a2f3756c1a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
