@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="adc56f55-d110-4167-bec4-ce0c1e19d102" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="prodemo2Flow" doc:id="a36992c5-20b3-4848-af5c-e03dc34935da" >
+		<http:listener doc:name="Listener" doc:id="104f6cef-33cf-4351-80d1-c43645da2b61" config-ref="HTTP_Listener_config" path="/prodemo2"/>
+		<ee:transform doc:name="Transform Message" doc:id="a190a7ad-2c32-455d-93f4-da4c8a8c5090" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output json
+---
+{
+	 address1: payload.order.buyer.address, 
+	 city: payload.order.buyer.city,
+	  country: payload.order.buyer.nationality,
+	   email: payload.order.buyer.email, 
+	   name: payload.order.buyer.name,
+	    postalCode: payload.order.buyer.postCode,
+	    stateOrProvince: payload.order.buyer.state
+}
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

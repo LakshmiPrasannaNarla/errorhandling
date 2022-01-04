@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1806acff-d26d-474a-9465-0f37de19446f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="prodemoFlow" doc:id="eec3e4ef-7b3e-4051-986f-718cce3fd25f" >
+		<http:listener doc:name="Listener" doc:id="1f02913b-dd89-4a3d-844d-6524fff8985a" config-ref="HTTP_Listener_config" path="/pro"/>
+		<ee:transform doc:name="Transform Message" doc:id="79a6b2a1-e31e-4c27-a1f9-75a74355cc70" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output json
+
+var data = {
+	"name" : "Max the MUle",
+	"locations" :[
+		{
+			"name" : "Max's house",
+			"address" : "1234 mule street",
+			"state"  : "CA" 
+		}
+	]
+}
+
+---
+
+[
+	data.name,
+	data.locations
+	
+	]
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="prodemoFlow1" doc:id="a1de9953-2dc3-4de8-a032-65f78f9d339b" >
+		<http:listener doc:name="Listener" doc:id="f0cb55f7-3566-493a-af61-f6bbcd84efc3" config-ref="HTTP_Listener_config" path="/pro1"/>
+		<ee:transform doc:name="Transform Message" doc:id="204835de-c0e1-4fbd-980a-07ea73171d19" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output json
+---
+if(payload.BookId== 110)
+{
+BookName: "Salesforce"
+}else if(payload.BookId==120)
+{
+BookName: "Mulesoft"
+}else if(payload.BookId == 130){
+BookName : "XML"}
+else if(payload.BookId==140){
+BookName : "JSON"
+}else if(payload.BookId == 150) {
+BookName : "light"
+}else{
+BookName : "Does not exist"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

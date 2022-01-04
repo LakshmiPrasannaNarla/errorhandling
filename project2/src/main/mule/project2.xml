@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="project2Flow" doc:id="3ead2670-1501-447b-9f74-c67dc8996ffe" >
+		<http:listener doc:name="Listener" doc:id="110a44b2-c272-4efa-ad59-1f4492825215" config-ref="domainHTTP_Listener_config" path="/project2"/>
+		<db:insert doc:name="Insert" doc:id="dafb1bfc-c77e-4786-a743-2625929f556f" config-ref="domainDatabase_Config">
+			<db:sql ><![CDATA[insert into production.categories (category_name) values('lakshmin')]]></db:sql>
+		</db:insert>
+	</flow>
+</mule>

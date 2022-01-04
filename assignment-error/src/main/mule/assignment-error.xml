@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="18a2949d-0d3b-4d2b-9730-011897035e42" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="36b7a220-8664-4abc-9b47-f9d3a55a3eea" >
+		<http:request-connection host="jhgrme" />
+	</http:request-config>
+	<flow name="assignment-errorFlow" doc:id="7c9f95a7-82a6-4c93-8440-9893db6cac22" >
+		<http:listener doc:name="Listener" doc:id="3ea0789d-8702-48b1-aebb-5448a5980b08" config-ref="HTTP_Listener_config" path="/path">
+			<http:response>
+				<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+	"message" : error.description
+}]]]></http:body>
+			</http:response>
+			<http:error-response>
+				<http:body ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : error.description
+}]]></http:body>
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<flow-ref doc:name="Flow Reference" doc:id="1d18d1cb-bc76-4f91-bbd1-b6e1f71c2797" name="assignment-errorFlow1"/>
+		<set-payload value='#["main flow"]' doc:name="Set Payload" doc:id="a48a30cf-5990-4e47-a7f0-19971eab410d" />
+	</flow>
+	<flow name="assignment-errorFlow1" doc:id="8c572d07-6f51-4c10-a8f6-ae911778e5eb" >
+		<set-payload value='#["private flow"]' doc:name="Set Payload" doc:id="08a2f9cc-d811-4292-8494-67f0ca695af5" />
+		<http:request method="GET" doc:name="Request" doc:id="3ddf19b8-8f3e-42db-a229-ab1e6fc58b1f" config-ref="HTTP_Request_configuration" path="/user"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5685fa4c-ecda-41a2-bccf-b3722dcd5a41" type="HTTP:CONNECTIVITY">
+				<ee:transform doc:name="Transform Message" doc:id="095c50f2-b0c3-422c-86cb-07e4d569589a">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message" : error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
